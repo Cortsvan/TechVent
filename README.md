@@ -5,6 +5,8 @@
 
 **By: Jovannie Cortes, Shane Gamboa, Rodz Gabriel Velayo & Franz Anthony Tomas**
 
+**Github Pages Live Demo:** https://cortsvan.github.io/TechVent/
+
 **On-going Project**
 
 **Homepage:**
