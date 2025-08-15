@@ -1,14 +1,14 @@
-**Title: TechVent: Tech & Gadget Inventory Management System**
+**Title:** TechVent: Tech & Gadget Inventory Management System**
 
 **Description:**
-The Tech Gadget Management System is a PHP-based web application designed to help tech retail businesses and gadget distributors efficiently manage their product inventory and supplier information. It allows authorized users to add, update, and monitor tech gadgets and accessories in stock while keeping track of supplier details for easy reordering. Its standout feature is the Stock Replenishment Recommendation, which automatically lists products that fall below a preset threshold, along with their supplier information, to help businesses restock on time and avoid shortages.
+    The Tech Gadget Management System is a PHP-based web application designed to help tech retail businesses and gadget distributors efficiently manage their product inventory and supplier information. It allows authorized users to add, update, and monitor tech gadgets and accessories in stock while keeping track of supplier details for easy reordering. Its standout feature is the Stock Replenishment Recommendation, which automatically lists products that fall below a preset threshold, along with their supplier information, to help businesses restock on time and avoid shortages.
 
-**By: Cortes, Jovannie**
-    Gamboa, Shane 
-    Velayo, Gabriel Rodz
-    Tomas, Franz Anthony
+**By: Cortes, Jovannie
+Gamboa, Shane 
+Velayo, Gabriel Rodz
+Tomas, Franz Anthony**
 
-**-On-going Project**
+**On-going Project**
 
 **Homepage:**
 <img width="2540" height="1278" alt="image" src="https://github.com/user-attachments/assets/f942431f-becb-4aa2-a78a-34333714ec1b" />
