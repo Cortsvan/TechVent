@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TechVent</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --navy: #1a202c;
+            --cyan: #3182ce;
+            --light-cyan: #63b3ed;
+            --dark-bg: #0f1419;
+            --card-bg: #2d3748;
+            --text-light: #e2e8f0;
+            --text-muted: #a0aec0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--navy) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(49, 130, 206, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--cyan) !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: 120px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233182ce' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.1;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--text-light), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .last-updated-text {
+            color: var(--text-light);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(49, 130, 206, 0.1);
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(49, 130, 206, 0.2);
+            border-color: var(--cyan);
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(49, 130, 206, 0.1);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            transition: width 0.3s ease;
+        }
+
+        .metric-card:hover::before {
+            width: 8px;
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(49, 130, 206, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .metric-change.positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .metric-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .metric-change.neutral {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+        }
+
+        /* Table Styles */
+        .table-custom {
+            background: rgba(45, 55, 72, 0.6);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(49, 130, 206, 0.2);
+        }
+
+        .table-custom thead th {
+            background: rgba(49, 130, 206, 0.15);
+            color: var(--text-light);
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-custom tbody td {
+            color: var(--text-light);
+            border: none;
+            padding: 15px;
+            border-bottom: 1px solid rgba(49, 130, 206, 0.08);
+            background: rgba(45, 55, 72, 0.4);
+        }
+
+        .table-custom tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(49, 130, 206, 0.08);
+        }
+
+        .table-custom tbody tr:hover td {
+            background: transparent;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-in-stock {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-low-stock {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-out-of-stock {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-inactive {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: rgba(45, 55, 72, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(49, 130, 206, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .form-control-custom {
+            background: rgba(15, 20, 25, 0.7);
+            border: 1px solid rgba(49, 130, 206, 0.25);
+            border-radius: 10px;
+            color: var(--text-light);
+            padding: 10px 15px;
+        }
+
+        .form-control-custom:focus {
+            background: rgba(15, 20, 25, 0.9);
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+            color: var(--text-light);
+        }
+
+        .form-control-custom::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-control-custom option {
+            background: var(--card-bg);
+            color: var(--text-light);
+        }
+
+        .btn-filter {
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(49, 130, 206, 0.3);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .dashboard-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .metric-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .main-content {
+                padding: 100px 0 40px;
+            }
+        }
+
+        /* Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Chart Placeholder */
+        .chart-placeholder {
+            height: 300px;
+            background: rgba(45, 55, 72, 0.5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            border: 2px dashed rgba(49, 130, 206, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-microchip me-2"></i>TechVent
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header text-center fade-in">
+                <h1 class="dashboard-title">Admin Dashboard</h1>
+                <p class="dashboard-subtitle">TechVent Inventory & Supplier Management System</p>
+                <p class="last-updated-text">
+                    <i class="fas fa-clock me-2"></i>Last updated: <span id="lastUpdated"></span>
+                </p>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="row mb-4 fade-in">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="metric-value" id="totalProducts">1,247</div>
+                        <div class="metric-label">Total Products</div>
+                        <span class="metric-change positive">
+                            <i class="fas fa-arrow-up me-1"></i>+12% from last month
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="metric-value" id="lowStockItems">23</div>
+                        <div class="metric-label">Low Stock Items</div>
+                        <span class="metric-change negative">
+                            <i class="fas fa-arrow-down me-1"></i>-5% from last week
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="metric-value" id="totalSuppliers">45</div>
+                        <div class="metric-label">Active Suppliers</div>
+                        <span class="metric-change positive">
+                            <i class="fas fa-arrow-up me-1"></i>+3 new suppliers
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-value" id="activeStaff">12</div>
+                        <div class="metric-label">Active Staff Members</div>
+                        <span class="metric-change neutral">
+                            <i class="fas fa-minus me-1"></i>No change
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Report Section -->
+            <div class="row fade-in">
+                <div class="col-12 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="text-light mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Inventory Report
+                            </h3>
+                            <button class="btn btn-filter" onclick="exportInventoryReport()">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                        
+                        <!-- Search and Filter -->
+                        <div class="search-filter-section">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <input type="text" class="form-control form-control-custom" id="inventorySearch" placeholder="Search products...">
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <select class="form-control form-control-custom" id="statusFilter">
+                                        <option value="">All Status</option>
+                                        <option value="in-stock">In Stock</option>
+                                        <option value="low-stock">Low Stock</option>
+                                        <option value="out-of-stock">Out of Stock</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-control form-control-custom" id="categoryFilter">
+                                        <option value="">All Categories</option>
+                                        <option value="smartphones">Smartphones</option>
+                                        <option value="laptops">Laptops</option>
+                                        <option value="tablets">Tablets</option>
+                                        <option value="accessories">Accessories</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Table -->
+                        <div class="table-responsive">
+                            <table class="table table-custom" id="inventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Product ID</th>
+                                        <th>Product Name</th>
+                                        <th>Category</th>
+                                        <th>Stock Level</th>
+                                        <th>Status</th>
+                                        <th>Last Restocked</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTableBody">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supplier Report Section -->
+            <div class="row fade-in">
+                <div class="col-12 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="text-light mb-0">
+                                <i class="fas fa-truck me-2"></i>Supplier Report
+                            </h3>
+                            <button class="btn btn-filter" onclick="exportSupplierReport()">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                        
+                        <!-- Search and Filter -->
+                        <div class="search-filter-section">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <input type="text" class="form-control form-control-custom" id="supplierSearch" placeholder="Search suppliers...">
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <select class="form-control form-control-custom" id="supplierStatusFilter">
+                                        <option value="">All Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-control form-control-custom" id="supplierLocationFilter">
+                                        <option value="">All Locations</option>
+                                        <option value="usa">United States</option>
+                                        <option value="china">China</option>
+                                        <option value="germany">Germany</option>
+                                        <option value="japan">Japan</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Supplier Table -->
+                        <div class="table-responsive">
+                            <table class="table table-custom" id="supplierTable">
+                                <thead>
+                                    <tr>
+                                        <th>Supplier ID</th>
+                                        <th>Supplier Name</th>
+                                        <th>Contact Person</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Last Order</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="supplierTableBody">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Sample data for demonstration
+        const inventoryData = [
+            { id: 'PRD001', name: 'iPhone 15 Pro', category: 'smartphones', stock: 45, status: 'in-stock', lastRestocked: '2024-09-10' },
+            { id: 'PRD002', name: 'MacBook Pro 16"', category: 'laptops', stock: 8, status: 'low-stock', lastRestocked: '2024-09-08' },
+            { id: 'PRD003', name: 'iPad Air', category: 'tablets', stock: 25, status: 'in-stock', lastRestocked: '2024-09-11' },
+            { id: 'PRD004', name: 'AirPods Pro', category: 'accessories', stock: 0, status: 'out-of-stock', lastRestocked: '2024-08-28' },
+            { id: 'PRD005', name: 'Samsung Galaxy S24', category: 'smartphones', stock: 32, status: 'in-stock', lastRestocked: '2024-09-09' },
+            { id: 'PRD006', name: 'Dell XPS 13', category: 'laptops', stock: 5, status: 'low-stock', lastRestocked: '2024-09-07' },
+            { id: 'PRD007', name: 'Surface Pro 9', category: 'tablets', stock: 18, status: 'in-stock', lastRestocked: '2024-09-10' },
+            { id: 'PRD008', name: 'Wireless Charger', category: 'accessories', stock: 3, status: 'low-stock', lastRestocked: '2024-09-05' }
+        ];
+
+        const supplierData = [
+            { id: 'SUP001', name: 'TechSource Inc.', contact: 'John Smith', email: 'j.smith@techsource.com', phone: '+1-555-0123', location: 'usa', status: 'active', lastOrder: '2024-09-08' },
+            { id: 'SUP002', name: 'Global Electronics Ltd.', contact: 'Sarah Johnson', email: 's.johnson@globalelec.com', phone: '+1-555-0124', location: 'china', status: 'active', lastOrder: '2024-09-10' },
+            { id: 'SUP003', name: 'Digital Innovations', contact: 'Mike Wilson', email: 'm.wilson@digitalinn.com', phone: '+1-555-0125', location: 'germany', status: 'inactive', lastOrder: '2024-08-15' },
+            { id: 'SUP004', name: 'Smart Tech Solutions', contact: 'Lisa Chen', email: 'l.chen@smarttech.com', phone: '+1-555-0126', location: 'japan', status: 'active', lastOrder: '2024-09-09' },
+            { id: 'SUP005', name: 'Future Components', contact: 'David Brown', email: 'd.brown@futurecomp.com', phone: '+1-555-0127', location: 'usa', status: 'active', lastOrder: '2024-09-11' }
+        ];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set last updated time
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleString();
+
+            // Populate tables
+            populateInventoryTable(inventoryData);
+            populateSupplierTable(supplierData);
+
+            // Add event listeners for filters
+            setupFilters();
+
+            // Animation trigger
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(element => {
+                    element.classList.add('visible');
+                });
+            }, 300);
+
+            // Update metrics periodically
+            setInterval(updateMetrics, 30000); // Update every 30 seconds
+        });
+
+        function populateInventoryTable(data) {
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td class="text-capitalize">${item.category}</td>
+                    <td>${item.stock}</td>
+                    <td><span class="status-badge status-${item.status}">${item.status.replace('-', ' ')}</span></td>
+                    <td>${new Date(item.lastRestocked).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-filter me-2" onclick="editProduct('${item.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function populateSupplierTable(data) {
+            const tbody = document.getElementById('supplierTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(supplier => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${supplier.id}</td>
+                    <td>${supplier.name}</td>
+                    <td>${supplier.contact}</td>
+                    <td>${supplier.email}</td>
+                    <td>${supplier.phone}</td>
+                    <td class="text-uppercase">${supplier.location}</td>
+                    <td><span class="status-badge status-${supplier.status}">${supplier.status}</span></td>
+                    <td>${new Date(supplier.lastOrder).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-filter me-2" onclick="editSupplier('${supplier.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('${supplier.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function setupFilters() {
+            // Inventory filters
+            const inventorySearch = document.getElementById('inventorySearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+
+            [inventorySearch, statusFilter, categoryFilter].forEach(element => {
+                element.addEventListener('input', filterInventoryData);
+                element.addEventListener('change', filterInventoryData);
+            });
+
+            // Supplier filters
+            const supplierSearch = document.getElementById('supplierSearch');
+            const supplierStatusFilter = document.getElementById('supplierStatusFilter');
+            const supplierLocationFilter = document.getElementById('supplierLocationFilter');
+
+            [supplierSearch, supplierStatusFilter, supplierLocationFilter].forEach(element => {
+                element.addEventListener('input', filterSupplierData);
+                element.addEventListener('change', filterSupplierData);
+            });
+        }
+
+        function filterInventoryData() {
+            const searchTerm = document.getElementById('inventorySearch').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            const filteredData = inventoryData.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                                    item.id.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || item.status === statusFilter;
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+
+                return matchesSearch && matchesStatus && matchesCategory;
+            });
+
+            populateInventoryTable(filteredData);
+        }
+
+        function filterSupplierData() {
+            const searchTerm = document.getElementById('supplierSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('supplierStatusFilter').value;
+            const locationFilter = document.getElementById('supplierLocationFilter').value;
+
+            const filteredData = supplierData.filter(supplier => {
+                const matchesSearch = supplier.name.toLowerCase().includes(searchTerm) || 
+                                    supplier.contact.toLowerCase().includes(searchTerm) ||
+                                    supplier.id.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || supplier.status === statusFilter;
+                const matchesLocation = !locationFilter || supplier.location === locationFilter;
+
+                return matchesSearch && matchesStatus && matchesLocation;
+            });
+
+            populateSupplierTable(filteredData);
+        }
+
+        function updateMetrics() {
+            // Simulate real-time updates
+            const totalProducts = inventoryData.length + Math.floor(Math.random() * 10);
+            const lowStockItems = inventoryData.filter(item => item.status === 'low-stock').length;
+            const activeSuppliers = supplierData.filter(supplier => supplier.status === 'active').length;
+            const activeStaff = 12 + Math.floor(Math.random() * 3);
+
+            document.getElementById('totalProducts').textContent = totalProducts.toLocaleString();
+            document.getElementById('lowStockItems').textContent = lowStockItems;
+            document.getElementById('totalSuppliers').textContent = activeSuppliers;
+            document.getElementById('activeStaff').textContent = activeStaff;
+
+            // Update timestamp
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        }
+
+        // Action functions
+        function editProduct(productId) {
+            alert(`Edit product: ${productId}`);
+            // Implement edit functionality
+        }
+
+        function deleteProduct(productId) {
+            if (confirm(`Are you sure you want to delete product ${productId}?`)) {
+                alert(`Product ${productId} deleted`);
+                // Implement delete functionality
+            }
+        }
+
+        function editSupplier(supplierId) {
+            alert(`Edit supplier: ${supplierId}`);
+            // Implement edit functionality
+        }
+
+        function deleteSupplier(supplierId) {
+            if (confirm(`Are you sure you want to delete supplier ${supplierId}?`)) {
+                alert(`Supplier ${supplierId} deleted`);
+                // Implement delete functionality
+            }
+        }
+
+        function exportInventoryReport() {
+            alert('Exporting inventory report...');
+            // Implement export functionality
+        }
+
+        function exportSupplierReport() {
+            alert('Exporting supplier report...');
+            // Implement export functionality
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar background change on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(26, 32, 44, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(26, 32, 44, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>

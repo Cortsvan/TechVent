@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - TechVent Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --navy: #1a202c;
+            --cyan: #3182ce;
+            --light-cyan: #63b3ed;
+            --dark-bg: #0f1419;
+            --card-bg: #2d3748;
+            --text-light: #e2e8f0;
+            --text-muted: #a0aec0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--navy) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(49, 130, 206, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--cyan) !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: 120px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233182ce' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.1;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--text-light), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .last-updated-text {
+            color: var(--text-light);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(49, 130, 206, 0.1);
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(49, 130, 206, 0.2);
+            border-color: var(--cyan);
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(49, 130, 206, 0.1);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            transition: width 0.3s ease;
+        }
+
+        .metric-card:hover::before {
+            width: 8px;
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(49, 130, 206, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .metric-change.positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .metric-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .metric-change.neutral {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+        }
+
+        /* User Cards */
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .user-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(49, 130, 206, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(49, 130, 206, 0.2);
+            border-color: var(--cyan);
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            transition: width 0.3s ease;
+            opacity: 0.1;
+        }
+
+        .user-card:hover::before {
+            width: 6px;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 15px;
+            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-avatar::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar i {
+            position: relative;
+            z-index: 2;
+            color: var(--cyan);
+        }
+
+        .user-info h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-details {
+            margin-bottom: 20px;
+        }
+
+        .user-detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(49, 130, 206, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .user-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-detail-label {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-detail-label i {
+            color: var(--cyan);
+            width: 16px;
+        }
+
+        .user-detail-value {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-inactive {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        /* User Actions */
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .btn-view {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-view:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-edit {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-edit:hover {
+            background: rgba(34, 197, 94, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-toggle {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .btn-toggle:hover {
+            background: rgba(251, 191, 36, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: rgba(45, 55, 72, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(49, 130, 206, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .form-control-custom {
+            background: rgba(15, 20, 25, 0.7);
+            border: 1px solid rgba(49, 130, 206, 0.25);
+            border-radius: 10px;
+            color: var(--text-light);
+            padding: 10px 15px;
+        }
+
+        .form-control-custom:focus {
+            background: rgba(15, 20, 25, 0.9);
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+            color: var(--text-light);
+        }
+
+        .form-control-custom::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-control-custom option {
+            background: var(--card-bg);
+            color: var(--text-light);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .dashboard-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .metric-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .main-content {
+                padding: 100px 0 40px;
+            }
+
+            .user-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .user-actions {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                flex: none;
+                width: 100%;
+            }
+        }
+
+        /* Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Add User Button */
+        .btn-add-user {
+            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
+            border: none;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-add-user:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(49, 130, 206, 0.3);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-microchip me-2"></i>TechVent
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="user-management.html">
+                            <i class="fas fa-users me-1"></i>User Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header text-center fade-in">
+                <h1 class="dashboard-title">User Management</h1>
+                <p class="dashboard-subtitle">Manage staff members and user accounts</p>
+                <p class="last-updated-text">
+                    <i class="fas fa-clock me-2"></i>Last updated: <span id="lastUpdated"></span>
+                </p>
+            </div>
+
+            <!-- User Overview Metrics -->
+            <div class="row mb-4 fade-in">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-value" id="totalUsers">28</div>
+                        <div class="metric-label">Total Users</div>
+                        <span class="metric-change positive">
+                            <i class="fas fa-arrow-up me-1"></i>+3 this month
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="metric-value" id="activeUsers">24</div>
+                        <div class="metric-label">Active Users</div>
+                        <span class="metric-change positive">
+                            <i class="fas fa-arrow-up me-1"></i>85.7% active
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="metric-value" id="totalDepartments">6</div>
+                        <div class="metric-label">Departments</div>
+                        <span class="metric-change neutral">
+                            <i class="fas fa-minus me-1"></i>No change
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="metric-value" id="newUsersThisWeek">5</div>
+                        <div class="metric-label">New This Week</div>
+                        <span class="metric-change positive">
+                            <i class="fas fa-arrow-up me-1"></i>New joiners
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="row fade-in">
+                <div class="col-12">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="text-light mb-0">
+                                <i class="fas fa-users me-2"></i>Staff Members
+                            </h3>
+                            <button class="btn-add-user" onclick="addNewUser()">
+                                <i class="fas fa-user-plus me-2"></i>Add New User
+                            </button>
+                        </div>
+                        
+                        <!-- Search and Filter -->
+                        <div class="search-filter-section">
+                            <div class="row">
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <input type="text" class="form-control-custom" id="userSearch" placeholder="Search users...">
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <select class="form-control-custom" id="statusFilter">
+                                        <option value="">All Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                        <option value="pending">Pending</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <select class="form-control-custom" id="departmentFilter">
+                                        <option value="">All Departments</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Product Management">Product Management</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Sales">Sales</option>
+                                        <option value="Support">Support</option>
+                                        <option value="HR">Human Resources</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-control-custom" id="sortFilter">
+                                        <option value="name">Sort by Name</option>
+                                        <option value="department">Sort by Department</option>
+                                        <option value="status">Sort by Status</option>
+                                        <option value="joinDate">Sort by Join Date</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Grid -->
+                        <div class="user-grid" id="userGrid">
+                            <!-- User cards will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Sample user data for demonstration
+        const userData = [
+            { id: 'USR001', firstName: 'John', lastName: 'Doe', email: 'john.doe@techvent.com', phone: '+1-555-0123', department: 'Product Management', role: 'Product Manager', status: 'active', joinDate: '2023-01-15', lastActive: '2024-09-12' },
+            { id: 'USR002', firstName: 'Sarah', lastName: 'Johnson', email: 'sarah.johnson@techvent.com', phone: '+1-555-0124', department: 'Engineering', role: 'Senior Developer', status: 'active', joinDate: '2022-11-20', lastActive: '2024-09-12' },
+            { id: 'USR003', firstName: 'Mike', lastName: 'Wilson', email: 'mike.wilson@techvent.com', phone: '+1-555-0125', department: 'Marketing', role: 'Marketing Specialist', status: 'inactive', joinDate: '2023-05-10', lastActive: '2024-09-10' },
+            { id: 'USR004', firstName: 'Lisa', lastName: 'Chen', email: 'lisa.chen@techvent.com', phone: '+1-555-0126', department: 'Engineering', role: 'Lead Developer', status: 'active', joinDate: '2022-08-03', lastActive: '2024-09-12' },
+            { id: 'USR005', firstName: 'David', lastName: 'Brown', email: 'david.brown@techvent.com', phone: '+1-555-0127', department: 'Sales', role: 'Sales Representative', status: 'active', joinDate: '2023-09-01', lastActive: '2024-09-11' },
+            { id: 'USR006', firstName: 'Emily', lastName: 'Davis', email: 'emily.davis@techvent.com', phone: '+1-555-0128', department: 'Support', role: 'Support Specialist', status: 'pending', joinDate: '2024-09-05', lastActive: '2024-09-12' },
+            { id: 'USR007', firstName: 'James', lastName: 'Miller', email: 'james.miller@techvent.com', phone: '+1-555-0129', department: 'HR', role: 'HR Manager', status: 'active', joinDate: '2022-06-15', lastActive: '2024-09-12' },
+            { id: 'USR008', firstName: 'Anna', lastName: 'Taylor', email: 'anna.taylor@techvent.com', phone: '+1-555-0130', department: 'Product Management', role: 'Product Designer', status: 'active', joinDate: '2023-03-20', lastActive: '2024-09-11' }
+        ];
+
+        // Initialize user management page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set last updated time
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleString();
+
+            // Populate user grid
+            populateUserGrid(userData);
+
+            // Setup filters
+            setupFilters();
+
+            // Animation trigger
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(element => {
+                    element.classList.add('visible');
+                });
+            }, 300);
+
+            // Update metrics
+            updateUserMetrics();
+        });
+
+        function populateUserGrid(users) {
+            const grid = document.getElementById('userGrid');
+            grid.innerHTML = '';
+
+            if (users.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                        <i class="fas fa-users" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <h4>No users found</h4>
+                        <p>Try adjusting your search filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <div class="user-header">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <h4>${user.firstName} ${user.lastName}</h4>
+                            <div class="user-role">${user.role}</div>
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-detail-item">
+                            <span class="user-detail-label">
+                                <i class="fas fa-envelope"></i>Email
+                            </span>
+                            <span class="user-detail-value">${user.email}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span class="user-detail-label">
+                                <i class="fas fa-phone"></i>Phone
+                            </span>
+                            <span class="user-detail-value">${user.phone}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span class="user-detail-label">
+                                <i class="fas fa-building"></i>Department
+                            </span>
+                            <span class="user-detail-value">${user.department}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span class="user-detail-label">
+                                <i class="fas fa-calendar"></i>Join Date
+                            </span>
+                            <span class="user-detail-value">${new Date(user.joinDate).toLocaleDateString()}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span class="user-detail-label">
+                                <i class="fas fa-signal"></i>Status
+                            </span>
+                            <span class="status-badge status-${user.status}">${user.status}</span>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-action btn-view" onclick="viewUser('${user.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-action btn-toggle" onclick="toggleUserStatus('${user.id}')">
+                            <i class="fas fa-toggle-${user.status === 'active' ? 'on' : 'off'}"></i> ${user.status === 'active' ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(userCard);
+            });
+        }
+
+        function setupFilters() {
+            const userSearch = document.getElementById('userSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const departmentFilter = document.getElementById('departmentFilter');
+            const sortFilter = document.getElementById('sortFilter');
+
+            [userSearch, statusFilter, departmentFilter, sortFilter].forEach(element => {
+                element.addEventListener('input', filterUsers);
+                element.addEventListener('change', filterUsers);
+            });
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const departmentFilter = document.getElementById('departmentFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+
+            let filteredUsers = userData.filter(user => {
+                const matchesSearch = user.firstName.toLowerCase().includes(searchTerm) ||
+                                    user.lastName.toLowerCase().includes(searchTerm) ||
+                                    user.email.toLowerCase().includes(searchTerm) ||
+                                    user.id.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || user.status === statusFilter;
+                const matchesDepartment = !departmentFilter || user.department === departmentFilter;
+
+                return matchesSearch && matchesStatus && matchesDepartment;
+            });
+
+            // Sort users
+            filteredUsers.sort((a, b) => {
+                switch (sortFilter) {
+                    case 'name':
+                        return (a.firstName + ' ' + a.lastName).localeCompare(b.firstName + ' ' + b.lastName);
+                    case 'department':
+                        return a.department.localeCompare(b.department);
+                    case 'status':
+                        return a.status.localeCompare(b.status);
+                    case 'joinDate':
+                        return new Date(b.joinDate) - new Date(a.joinDate);
+                    default:
+                        return 0;
+                }
+            });
+
+            populateUserGrid(filteredUsers);
+        }
+
+        function updateUserMetrics() {
+            const totalUsers = userData.length;
+            const activeUsers = userData.filter(user => user.status === 'active').length;
+            const departments = new Set(userData.map(user => user.department)).size;
+            const newUsersThisWeek = userData.filter(user => {
+                const joinDate = new Date(user.joinDate);
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                return joinDate >= oneWeekAgo;
+            }).length;
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('totalDepartments').textContent = departments;
+            document.getElementById('newUsersThisWeek').textContent = newUsersThisWeek;
+        }
+
+        // User management functions
+        function viewUser(userId) {
+            const user = userData.find(u => u.id === userId);
+            if (user) {
+                alert(`Viewing user: ${user.firstName} ${user.lastName}\nDepartment: ${user.department}\nStatus: ${user.status}`);
+            }
+        }
+
+        function editUser(userId) {
+            const user = userData.find(u => u.id === userId);
+            if (user) {
+                alert(`Edit user: ${user.firstName} ${user.lastName}`);
+                // In a real application, this would open an edit modal or form
+            }
+        }
+
+        function toggleUserStatus(userId) {
+            const userIndex = userData.findIndex(u => u.id === userId);
+            if (userIndex > -1) {
+                const user = userData[userIndex];
+                const newStatus = user.status === 'active' ? 'inactive' : 'active';
+                
+                if (confirm(`Are you sure you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} ${user.firstName} ${user.lastName}?`)) {
+                    userData[userIndex].status = newStatus;
+                    populateUserGrid(userData);
+                    updateUserMetrics();
+                    alert(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`);
+                }
+            }
+        }
+
+        function deleteUser(userId) {
+            const user = userData.find(u => u.id === userId);
+            if (user && confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}? This action cannot be undone.`)) {
+                const userIndex = userData.findIndex(u => u.id === userId);
+                userData.splice(userIndex, 1);
+                populateUserGrid(userData);
+                updateUserMetrics();
+                alert('User deleted successfully!');
+            }
+        }
+
+        function addNewUser() {
+            alert('Add New User functionality - would open a form to create a new user account');
+            // In a real application, this would open a modal or navigate to a new user form
+        }
+
+        // Navbar background change on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(26, 32, 44, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(26, 32, 44, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>
