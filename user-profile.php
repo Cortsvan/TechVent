@@ -1,3 +1,156 @@
+<?php
+/**
+ * User Profile Page - TechVent
+ * Handles user profile display and updates
+ */
+
+// Start session
+session_start();
+
+// Include database connection and session helpers
+require_once 'config/db.php';
+require_once 'includes/session.php';
+
+// Check if user is logged in
+requireLogin();
+
+// Get current user data
+$currentUser = getCurrentUser();
+$errors = [];
+$success = '';
+
+// Get user data from database
+try {
+    $sql = "SELECT * FROM users WHERE id = ?";
+    $user = fetchOne($sql, [$currentUser['id']]);
+    
+    if (!$user) {
+        header('Location: login.php');
+        exit();
+    }
+} catch (Exception $e) {
+    $errors[] = "Error loading profile data.";
+}
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get form data
+    $firstName = trim($_POST['firstName']);
+    $middleName = trim($_POST['middleName'] ?? '');
+    $lastName = trim($_POST['lastName']);
+    $suffix = trim($_POST['suffix'] ?? '');
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone'] ?? '');
+    $department = trim($_POST['department'] ?? '');
+    $location = trim($_POST['location'] ?? '');
+    $timezone = trim($_POST['timezone'] ?? '');
+    
+    // Validation
+    if (empty($firstName)) {
+        $errors[] = "First name is required.";
+    }
+    
+    if (empty($lastName)) {
+        $errors[] = "Last name is required.";
+    }
+    
+    if (empty($email)) {
+        $errors[] = "Email address is required.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Please provide a valid email address.";
+    }
+    
+    // Check if email is taken by another user
+    if (empty($errors) && $email !== $user['email']) {
+        try {
+            $emailCheck = fetchOne("SELECT id FROM users WHERE email = ? AND id != ?", [$email, $currentUser['id']]);
+            if ($emailCheck) {
+                $errors[] = "This email address is already in use by another account.";
+            }
+        } catch (Exception $e) {
+            $errors[] = "Error validating email address.";
+        }
+    }
+    
+    // If no errors, update the user profile
+    if (empty($errors)) {
+        try {
+            $sql = "UPDATE users SET 
+                    first_name = ?, 
+                    middle_name = ?, 
+                    last_name = ?, 
+                    suffix = ?, 
+                    email = ?, 
+                    phone = ?, 
+                    department = ?, 
+                    location = ?, 
+                    timezone = ?,
+                    updated_at = NOW()
+                    WHERE id = ?";
+            
+            $params = [
+                $firstName,
+                $middleName ?: null,
+                $lastName,
+                $suffix ?: null,
+                $email,
+                $phone ?: null,
+                $department ?: null,
+                $location ?: null,
+                $timezone ?: null,
+                $currentUser['id']
+            ];
+            
+            executeQuery($sql, $params);
+            
+            // Update session data
+            $_SESSION['user_email'] = $email;
+            $_SESSION['user_name'] = $firstName . ' ' . $lastName;
+            
+            // Refresh user data
+            $user = fetchOne("SELECT * FROM users WHERE id = ?", [$currentUser['id']]);
+            
+            $success = "Profile updated successfully!";
+            
+        } catch (Exception $e) {
+            $errors[] = "Failed to update profile. Please try again.";
+        }
+    }
+}
+
+// Calculate account statistics
+$accountStats = [
+    'products_managed' => 0,
+    'days_active' => 0,
+    'recent_updates' => 0,
+    'profile_complete' => 0
+];
+
+try {
+    // Calculate days since registration
+    $joinDate = new DateTime($user['created_at']);
+    $now = new DateTime();
+    $accountStats['days_active'] = $now->diff($joinDate)->days;
+    
+    // Calculate profile completeness
+    $fields = ['first_name', 'last_name', 'email', 'phone', 'department', 'location', 'timezone'];
+    $completed = 0;
+    foreach ($fields as $field) {
+        if (!empty($user[$field])) {
+            $completed++;
+        }
+    }
+    $accountStats['profile_complete'] = round(($completed / count($fields)) * 100);
+    
+    // You can add more statistics here based on your database structure
+    // For now, using some example values
+    $accountStats['products_managed'] = 24;
+    $accountStats['recent_updates'] = 47;
+    
+} catch (Exception $e) {
+    // Use default values if calculation fails
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -400,6 +553,25 @@
             font-size: 0.9rem;
         }
 
+        /* Alert styles */
+        .alert-custom-error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 10px;
+            color: #dc3545;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+        }
+
+        .alert-custom-success {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            border-radius: 10px;
+            color: #28a745;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .profile-title {
@@ -450,6 +622,15 @@
         .view-mode.editing {
             display: none;
         }
+
+        /* Form validation styles */
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .is-valid {
+            border-color: #28a745 !important;
+        }
     </style>
 </head>
 <body>
@@ -466,19 +647,34 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="user-dashboard.html">
-                            <i class="fas fa-boxes me-1"></i>My Products
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="user-profile.html">
-                            <i class="fas fa-user me-1"></i>Profile
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
+                    <?php if ($currentUser['type'] === 'admin'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin-dashboard.html">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin-user-management.html">
+                                <i class="fas fa-users me-1"></i>User Management
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="user-profile.php">
+                                <i class="fas fa-user me-1"></i>Profile
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="user-dashboard.html">
+                                <i class="fas fa-boxes me-1"></i>My Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="user-profile.php">
+                                <i class="fas fa-user me-1"></i>Profile
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <li class="nav-item">
                         <a class="nav-link" href="logout.php">Logout</a>
                     </li>
@@ -495,7 +691,8 @@
                 <h1 class="profile-title">User Profile</h1>
                 <p class="profile-subtitle">Manage your account information and settings</p>
                 <p class="last-updated-text">
-                    <i class="fas fa-clock me-2"></i>Last updated: <span id="lastUpdated"></span>
+                    <i class="fas fa-clock me-2"></i>Last updated: 
+                    <span><?php echo $user['updated_at'] ? date('M j, Y g:i A', strtotime($user['updated_at'])) : date('M j, Y g:i A', strtotime($user['created_at'])); ?></span>
                 </p>
             </div>
 
@@ -517,10 +714,35 @@
                             <div class="profile-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <h2 class="profile-name" id="displayName">John Doe</h2>
-                            <p class="profile-role" id="displayRole">Product Manager</p>
+                            <h2 class="profile-name">
+                                <?php echo htmlspecialchars(trim($user['first_name'] . ' ' . $user['middle_name'] . ' ' . $user['last_name'])); ?>
+                                <?php if (!empty($user['suffix'])): ?>
+                                    <?php echo htmlspecialchars($user['suffix']); ?>
+                                <?php endif; ?>
+                            </h2>
+                            <p class="profile-role"><?php echo htmlspecialchars($user['department'] ?: 'Team Member'); ?></p>
                             <span class="profile-status">Active</span>
                         </div>
+
+                        <!-- Display errors -->
+                        <?php if (!empty($errors)): ?>
+                            <div class="alert-custom-error">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <ul class="mb-0">
+                                    <?php foreach ($errors as $error): ?>
+                                        <li><?php echo htmlspecialchars($error); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Display success message -->
+                        <?php if (!empty($success)): ?>
+                            <div class="alert-custom-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <?php echo htmlspecialchars($success); ?>
+                            </div>
+                        <?php endif; ?>
 
                         <!-- View Mode -->
                         <div class="view-mode" id="viewMode">
@@ -531,25 +753,37 @@
                                             <span class="info-label">
                                                 <i class="fas fa-user"></i>First Name
                                             </span>
-                                            <span class="info-value" id="viewFirstName">John</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['first_name'] ?: 'Not set'); ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">
+                                                <i class="fas fa-user"></i>Middle Name
+                                            </span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['middle_name'] ?: 'Not set'); ?></span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">
                                                 <i class="fas fa-user"></i>Last Name
                                             </span>
-                                            <span class="info-value" id="viewLastName">Doe</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['last_name'] ?: 'Not set'); ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">
+                                                <i class="fas fa-tag"></i>Suffix
+                                            </span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['suffix'] ?: 'None'); ?></span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">
                                                 <i class="fas fa-envelope"></i>Email
                                             </span>
-                                            <span class="info-value" id="viewEmail">john.doe@techvent.com</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['email']); ?></span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">
                                                 <i class="fas fa-phone"></i>Phone
                                             </span>
-                                            <span class="info-value" id="viewPhone">+1 (555) 123-4567</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['phone'] ?: 'Not set'); ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -559,25 +793,31 @@
                                             <span class="info-label">
                                                 <i class="fas fa-briefcase"></i>Department
                                             </span>
-                                            <span class="info-value" id="viewDepartment">Product Management</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['department'] ?: 'Not set'); ?></span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">
                                                 <i class="fas fa-calendar"></i>Join Date
                                             </span>
-                                            <span class="info-value" id="viewJoinDate">January 15, 2023</span>
+                                            <span class="info-value"><?php echo date('F j, Y', strtotime($user['created_at'])); ?></span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">
                                                 <i class="fas fa-map-marker-alt"></i>Location
                                             </span>
-                                            <span class="info-value" id="viewLocation">San Francisco, CA</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['location'] ?: 'Not set'); ?></span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">
                                                 <i class="fas fa-clock"></i>Timezone
                                             </span>
-                                            <span class="info-value" id="viewTimezone">PST (UTC-8)</span>
+                                            <span class="info-value"><?php echo htmlspecialchars($user['timezone'] ?: 'Not set'); ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">
+                                                <i class="fas fa-shield-alt"></i>User Type
+                                            </span>
+                                            <span class="info-value"><?php echo htmlspecialchars(ucfirst($user['user_type'])); ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -586,56 +826,84 @@
 
                         <!-- Edit Mode -->
                         <div class="edit-mode" id="editMode">
-                            <form id="profileForm">
+                            <form method="POST" action="">
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label-custom">First Name</label>
-                                        <input type="text" class="form-control-custom" id="firstName" value="John" required>
+                                        <input type="text" class="form-control-custom" name="firstName" 
+                                               value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>" required>
                                     </div>
                                     <div class="col-md-6">
+                                        <label class="form-label-custom">Middle Name</label>
+                                        <input type="text" class="form-control-custom" name="middleName" 
+                                               value="<?php echo htmlspecialchars($user['middle_name'] ?? ''); ?>">
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-8">
                                         <label class="form-label-custom">Last Name</label>
-                                        <input type="text" class="form-control-custom" id="lastName" value="Doe" required>
+                                        <input type="text" class="form-control-custom" name="lastName" 
+                                               value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">Suffix</label>
+                                        <select class="form-control-custom" name="suffix">
+                                            <option value="">None</option>
+                                            <option value="Jr." <?php echo ($user['suffix'] == 'Jr.') ? 'selected' : ''; ?>>Jr.</option>
+                                            <option value="Sr." <?php echo ($user['suffix'] == 'Sr.') ? 'selected' : ''; ?>>Sr.</option>
+                                            <option value="II" <?php echo ($user['suffix'] == 'II') ? 'selected' : ''; ?>>II</option>
+                                            <option value="III" <?php echo ($user['suffix'] == 'III') ? 'selected' : ''; ?>>III</option>
+                                            <option value="IV" <?php echo ($user['suffix'] == 'IV') ? 'selected' : ''; ?>>IV</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Email</label>
-                                        <input type="email" class="form-control-custom" id="email" value="john.doe@techvent.com" required>
+                                        <input type="email" class="form-control-custom" name="email" 
+                                               value="<?php echo htmlspecialchars($user['email']); ?>" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Phone</label>
-                                        <input type="tel" class="form-control-custom" id="phone" value="+1 (555) 123-4567" required>
+                                        <input type="tel" class="form-control-custom" name="phone" 
+                                               value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                                     </div>
                                 </div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Department</label>
-                                        <select class="form-control-custom" id="department" required>
-                                            <option value="Product Management">Product Management</option>
-                                            <option value="Engineering">Engineering</option>
-                                            <option value="Marketing">Marketing</option>
-                                            <option value="Sales">Sales</option>
-                                            <option value="Support">Support</option>
+                                        <select class="form-control-custom" name="department">
+                                            <option value="">Select Department</option>
+                                            <option value="Product Management" <?php echo ($user['department'] == 'Product Management') ? 'selected' : ''; ?>>Product Management</option>
+                                            <option value="Engineering" <?php echo ($user['department'] == 'Engineering') ? 'selected' : ''; ?>>Engineering</option>
+                                            <option value="Marketing" <?php echo ($user['department'] == 'Marketing') ? 'selected' : ''; ?>>Marketing</option>
+                                            <option value="Sales" <?php echo ($user['department'] == 'Sales') ? 'selected' : ''; ?>>Sales</option>
+                                            <option value="Support" <?php echo ($user['department'] == 'Support') ? 'selected' : ''; ?>>Support</option>
+                                            <option value="Operations" <?php echo ($user['department'] == 'Operations') ? 'selected' : ''; ?>>Operations</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Location</label>
-                                        <input type="text" class="form-control-custom" id="location" value="San Francisco, CA" required>
+                                        <input type="text" class="form-control-custom" name="location" 
+                                               value="<?php echo htmlspecialchars($user['location'] ?? ''); ?>" 
+                                               placeholder="e.g., San Francisco, CA">
                                     </div>
                                 </div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Timezone</label>
-                                        <select class="form-control-custom" id="timezone" required>
-                                            <option value="PST (UTC-8)">PST (UTC-8)</option>
-                                            <option value="MST (UTC-7)">MST (UTC-7)</option>
-                                            <option value="CST (UTC-6)">CST (UTC-6)</option>
-                                            <option value="EST (UTC-5)">EST (UTC-5)</option>
+                                        <select class="form-control-custom" name="timezone">
+                                            <option value="">Select Timezone</option>
+                                            <option value="PST (UTC-8)" <?php echo ($user['timezone'] == 'PST (UTC-8)') ? 'selected' : ''; ?>>PST (UTC-8)</option>
+                                            <option value="MST (UTC-7)" <?php echo ($user['timezone'] == 'MST (UTC-7)') ? 'selected' : ''; ?>>MST (UTC-7)</option>
+                                            <option value="CST (UTC-6)" <?php echo ($user['timezone'] == 'CST (UTC-6)') ? 'selected' : ''; ?>>CST (UTC-6)</option>
+                                            <option value="EST (UTC-5)" <?php echo ($user['timezone'] == 'EST (UTC-5)') ? 'selected' : ''; ?>>EST (UTC-5)</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Join Date</label>
-                                        <input type="text" class="form-control-custom" id="joinDate" value="January 15, 2023" disabled>
+                                        <input type="text" class="form-control-custom" 
+                                               value="<?php echo date('F j, Y', strtotime($user['created_at'])); ?>" disabled>
                                     </div>
                                 </div>
                                 <div class="row g-3 mt-3">
@@ -668,7 +936,7 @@
                                     <div class="stat-icon">
                                         <i class="fas fa-boxes"></i>
                                     </div>
-                                    <div class="stat-value" id="totalProductsOwned">24</div>
+                                    <div class="stat-value"><?php echo $accountStats['products_managed']; ?></div>
                                     <div class="stat-label">Products Managed</div>
                                 </div>
                             </div>
@@ -677,7 +945,7 @@
                                     <div class="stat-icon">
                                         <i class="fas fa-calendar-check"></i>
                                     </div>
-                                    <div class="stat-value" id="activeDays">624</div>
+                                    <div class="stat-value"><?php echo $accountStats['days_active']; ?></div>
                                     <div class="stat-label">Days Active</div>
                                 </div>
                             </div>
@@ -686,7 +954,7 @@
                                     <div class="stat-icon">
                                         <i class="fas fa-edit"></i>
                                     </div>
-                                    <div class="stat-value" id="recentUpdates">47</div>
+                                    <div class="stat-value"><?php echo $accountStats['recent_updates']; ?></div>
                                     <div class="stat-label">Recent Updates</div>
                                 </div>
                             </div>
@@ -695,7 +963,7 @@
                                     <div class="stat-icon">
                                         <i class="fas fa-trophy"></i>
                                     </div>
-                                    <div class="stat-value" id="achievementScore">98%</div>
+                                    <div class="stat-value"><?php echo $accountStats['profile_complete']; ?>%</div>
                                     <div class="stat-label">Profile Complete</div>
                                 </div>
                             </div>
@@ -713,10 +981,6 @@
     <script>
         // Initialize profile page
         document.addEventListener('DOMContentLoaded', function() {
-            // Set last updated time
-            const now = new Date();
-            document.getElementById('lastUpdated').textContent = now.toLocaleString();
-
             // Setup event listeners
             setupEventListeners();
 
@@ -726,15 +990,11 @@
                     element.classList.add('visible');
                 });
             }, 300);
-
-            // Update statistics periodically
-            setInterval(updateStatistics, 30000); // Update every 30 seconds
         });
 
         function setupEventListeners() {
             const editBtn = document.getElementById('editProfileBtn');
             const cancelBtn = document.getElementById('cancelEditBtn');
-            const profileForm = document.getElementById('profileForm');
 
             // Edit profile button
             editBtn.addEventListener('click', function() {
@@ -744,13 +1004,6 @@
             // Cancel edit button
             cancelBtn.addEventListener('click', function() {
                 toggleEditMode(false);
-                resetForm();
-            });
-
-            // Form submission
-            profileForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                saveProfile();
             });
         }
 
@@ -770,68 +1023,6 @@
                 editBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Edit Profile';
                 editBtn.onclick = () => toggleEditMode(true);
             }
-        }
-
-        function saveProfile() {
-            // Get form values
-            const formData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                department: document.getElementById('department').value,
-                location: document.getElementById('location').value,
-                timezone: document.getElementById('timezone').value
-            };
-
-            // Update view mode values
-            document.getElementById('viewFirstName').textContent = formData.firstName;
-            document.getElementById('viewLastName').textContent = formData.lastName;
-            document.getElementById('viewEmail').textContent = formData.email;
-            document.getElementById('viewPhone').textContent = formData.phone;
-            document.getElementById('viewDepartment').textContent = formData.department;
-            document.getElementById('viewLocation').textContent = formData.location;
-            document.getElementById('viewTimezone').textContent = formData.timezone;
-
-            // Update profile header
-            document.getElementById('displayName').textContent = `${formData.firstName} ${formData.lastName}`;
-
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-
-            // Switch back to view mode
-            toggleEditMode(false);
-
-            // Show success message
-            alert('Profile updated successfully!');
-        }
-
-        function resetForm() {
-            // Reset form to original values (in a real app, you'd fetch from server)
-            document.getElementById('firstName').value = 'John';
-            document.getElementById('lastName').value = 'Doe';
-            document.getElementById('email').value = 'john.doe@techvent.com';
-            document.getElementById('phone').value = '+1 (555) 123-4567';
-            document.getElementById('department').value = 'Product Management';
-            document.getElementById('location').value = 'San Francisco, CA';
-            document.getElementById('timezone').value = 'PST (UTC-8)';
-        }
-
-        function updateStatistics() {
-            // Simulate real-time updates
-            const currentProducts = parseInt(document.getElementById('totalProductsOwned').textContent);
-            const newProductCount = currentProducts + Math.floor(Math.random() * 3) - 1;
-            
-            if (newProductCount >= 0) {
-                document.getElementById('totalProductsOwned').textContent = newProductCount;
-            }
-
-            // Update other stats
-            const activeDays = parseInt(document.getElementById('activeDays').textContent) + 1;
-            document.getElementById('activeDays').textContent = activeDays;
-
-            const recentUpdates = Math.floor(Math.random() * 100);
-            document.getElementById('recentUpdates').textContent = recentUpdates;
         }
 
         // Navbar background change on scroll

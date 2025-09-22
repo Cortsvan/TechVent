@@ -1,9 +1,82 @@
+<?php
+/**
+ * Login Page - TechVent
+ * Handles user authentication with role-based redirects
+ */
+
+// Start session
+session_start();
+
+// Include database connection and session helpers
+require_once 'config/db.php';
+require_once 'includes/session.php';
+
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['user_type'] === 'admin') {
+        header('Location: admin-dashboard.html');
+    } else {
+        header('Location: user-dashboard.html');
+    }
+    exit();
+}
+
+// Initialize variables
+$errors = [];
+$email = '';
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get form data
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+    
+    // Validation
+    if (empty($email)) {
+        $errors[] = "Email address is required.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Please provide a valid email address.";
+    }
+    
+    if (empty($password)) {
+        $errors[] = "Password is required.";
+    }
+    
+    // If no errors, authenticate user
+    if (empty($errors)) {
+        try {
+            $sql = "SELECT id, first_name, last_name, email, password, user_type FROM users WHERE email = ?";
+            $user = fetchOne($sql, [$email]);
+            
+            if ($user && $password === $user['password']) {
+                // Login successful - create session
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+                $_SESSION['user_type'] = $user['user_type'];
+                
+                // Redirect based on user type
+                if ($user['user_type'] === 'admin') {
+                    header('Location: admin-dashboard.html');
+                } else {
+                    header('Location: user-dashboard.html');
+                }
+                exit();
+            } else {
+                $errors[] = "Invalid email or password. Please try again.";
+            }
+        } catch (Exception $e) {
+            $errors[] = "Login failed. Please try again.";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - TechVent</title>
+    <title>Login - TechVent</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -104,8 +177,8 @@
             opacity: 0.1;
         }
 
-        /* Forgot Password Form */
-        .forgot-card {
+        /* Login Form */
+        .login-card {
             background: var(--card-bg);
             border-radius: 20px;
             padding: 40px;
@@ -116,12 +189,12 @@
             backdrop-filter: blur(10px);
         }
 
-        .forgot-header {
+        .login-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
-        .forgot-title {
+        .login-title {
             font-size: 2.5rem;
             font-weight: 700;
             background: linear-gradient(45deg, var(--text-light), var(--cyan));
@@ -131,12 +204,12 @@
             margin-bottom: 10px;
         }
 
-        .forgot-subtitle {
+        .login-subtitle {
             color: var(--text-muted);
             font-size: 1.1rem;
         }
 
-        .forgot-icon {
+        .login-icon {
             width: 80px;
             height: 80px;
             background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
@@ -191,7 +264,7 @@
             border-radius: 0 10px 10px 0;
         }
 
-        .btn-reset {
+        .btn-login {
             background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
             border: none;
             padding: 15px;
@@ -203,27 +276,69 @@
             width: 100%;
         }
 
-        .btn-reset:hover {
+        .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 35px rgba(49, 130, 206, 0.4);
         }
 
-        .back-to-login {
-            text-align: center;
-            margin-top: 25px;
-            color: var(--text-muted);
+        .form-check-input {
+            background-color: rgba(45, 55, 72, 0.8);
+            border-color: rgba(49, 130, 206, 0.2);
         }
 
-        .back-to-login a {
+        .form-check-input:checked {
+            background-color: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--cyan);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+        }
+
+        .form-check-label {
+            color: var(--text-light);
+        }
+
+        .forgot-password {
             color: var(--cyan);
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
         }
 
-        .back-to-login a:hover {
+        .forgot-password:hover {
             color: var(--light-cyan);
             text-decoration: underline;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-muted);
+        }
+
+        .register-link a {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: var(--light-cyan);
+            text-decoration: underline;
+        }
+
+        /* Alert styles */
+        .alert-custom {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 10px;
+            color: #dc3545;
+            padding: 12px 15px;
+            margin-bottom: 20px;
         }
 
         /* Footer */
@@ -275,11 +390,11 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .forgot-card {
+            .login-card {
                 padding: 30px 20px;
             }
             
-            .forgot-title {
+            .login-title {
                 font-size: 2rem;
             }
             
@@ -320,17 +435,6 @@
             font-size: 0.875rem;
             margin-top: 5px;
         }
-
-        /* Success message */
-        .success-message {
-            background: rgba(40, 167, 69, 0.1);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            border-radius: 10px;
-            color: #28a745;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -351,7 +455,7 @@
                         <a class="nav-link" href="index.html#about">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">Login</a>
+                        <a class="nav-link active" href="login.php">Login</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="register.php">Register</a>
@@ -366,23 +470,39 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-6 col-xl-5">
-                    <div class="forgot-card fade-in">
-                        <div class="forgot-header">
-                            <div class="forgot-icon">
-                                <i class="fas fa-key"></i>
+                    <div class="login-card fade-in">
+                        <div class="login-header">
+                            <div class="login-icon">
+                                <i class="fas fa-sign-in-alt"></i>
                             </div>
-                            <h1 class="forgot-title">Reset Password</h1>
-                            <p class="forgot-subtitle">Enter your email address and we'll send you a reset link</p>
+                            <h1 class="login-title">Welcome Back</h1>
+                            <p class="login-subtitle">Sign in to your TechVent account</p>
                         </div>
 
-                        <!-- Success message (initially hidden) -->
-                        <div id="successMessage" class="success-message d-none">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Password reset link has been sent to your email address.
-                        </div>
+                        <!-- Display success messages -->
+                        <?php
+                        $message = getSessionMessage();
+                        if ($message): ?>
+                            <div class="alert-custom" style="background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.3); color: #28a745;">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <?php echo htmlspecialchars($message); ?>
+                            </div>
+                        <?php endif; ?>
 
-                        <form id="forgotForm" novalidate>
-                            <div class="mb-4">
+                        <!-- Display errors -->
+                        <?php if (!empty($errors)): ?>
+                            <div class="alert-custom">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <ul class="mb-0">
+                                    <?php foreach ($errors as $error): ?>
+                                        <li><?php echo htmlspecialchars($error); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <form method="POST" action="">
+                            <div class="mb-3">
                                 <label for="email" class="form-label">
                                     <i class="fas fa-envelope me-2"></i>Email Address
                                 </label>
@@ -391,32 +511,65 @@
                                         <i class="fas fa-at"></i>
                                     </span>
                                     <input type="email" class="form-control" id="email" name="email" 
-                                           placeholder="Enter your email address" required>
+                                           placeholder="Enter your email address" 
+                                           value="<?php echo htmlspecialchars($email); ?>" required>
                                 </div>
                                 <div class="invalid-feedback">
                                     Please provide a valid email address.
                                 </div>
-                                <small class="text-muted mt-2 d-block">
-                                    <small style="color: #FFD600;" class="mt-2 d-block">We'll send password reset instructions to this email address.</small>
-                                </small>
                             </div>
 
-                            <button type="submit" class="btn btn-reset mb-3">
-                                <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-key"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="password" name="password" 
+                                           placeholder="Enter your password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter your password.
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+                                        <label class="form-check-label" for="rememberMe">
+                                            Remember me
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <a href="forgot.html" class="forgot-password">
+                                        <i class="fas fa-question-circle me-1"></i>Forgot Password?
+                                    </a>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-login mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
                             </button>
                         </form>
 
-                        <div class="back-to-login">
-                            <i class="fas fa-arrow-left me-2"></i>
-                            <a href="login.php">Back to Login</a>
+                        <div class="register-link">
+                            Don't have an account? <a href="register.php">Create one here</a>
                         </div>
 
-                        <!-- Help info -->
+                        <!-- Demo credentials info -->
                         <div class="mt-4 p-3" style="background: rgba(49, 130, 206, 0.1); border-radius: 10px; border: 1px solid rgba(49, 130, 206, 0.2);">
-                            <small class="text-muted">
+                            <small style="color: #fff;">
                                 <i class="fas fa-info-circle me-2"></i>
-                                <strong>Need Help?</strong><br>
-                                <span style="color: #ffffff;">If you don't receive the email within a few minutes, check your spam folder or contact support.</span>
+                                <strong>Demo Accounts:</strong><br>
+                                <strong>Admin:</strong> admin@techvent.com / admin123<br>
+                                <strong>User:</strong> Register a new account or use existing user credentials
                             </small>
                         </div>
                     </div>
@@ -490,46 +643,34 @@
     <script>
         // Form validation and functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('forgotForm');
-            const successMessage = document.getElementById('successMessage');
+            const form = document.querySelector('form');
+            const passwordField = document.getElementById('password');
+            const togglePassword = document.getElementById('togglePassword');
+            const emailField = document.getElementById('email');
 
-            // Form submission
-            form.addEventListener('submit', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                // Hide success message
-                successMessage.classList.add('d-none');
-
-                // Basic validation
-                const emailField = document.getElementById('email');
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                if (!emailRegex.test(emailField.value)) {
-                    emailField.classList.add('is-invalid');
-                    emailField.classList.remove('is-valid');
-                } else {
-                    emailField.classList.remove('is-invalid');
-                    emailField.classList.add('is-valid');
-                    
-                    // Show success message
-                    successMessage.classList.remove('d-none');
-                    
-                    // Reset form after 3 seconds
-                    setTimeout(() => {
-                        form.reset();
-                        emailField.classList.remove('is-valid');
-                        successMessage.classList.add('d-none');
-                    }, 3000);
-                }
-
-                this.classList.add('was-validated');
+            // Password visibility toggle
+            togglePassword.addEventListener('click', function() {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
             });
 
-            // Real-time validation
-            document.getElementById('email').addEventListener('input', function() {
+            // Real-time email validation
+            emailField.addEventListener('input', function() {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (emailRegex.test(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else if (this.value.length > 0) {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+
+            // Real-time password validation
+            passwordField.addEventListener('input', function() {
+                if (this.value.trim().length > 0) {
                     this.classList.remove('is-invalid');
                     this.classList.add('is-valid');
                 } else {
