@@ -232,258 +232,164 @@
             color: #9ca3af;
         }
 
-        /* User Cards */
-        .user-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-top: 25px;
+        /* User Table Styles */
+        .user-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
         }
-
-        .user-card {
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
             background: var(--card-bg);
             border-radius: 15px;
-            padding: 25px;
+            overflow: hidden;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(49, 130, 206, 0.1);
-            position: relative;
-            overflow: hidden;
         }
-
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(49, 130, 206, 0.2);
-            border-color: var(--cyan);
-        }
-
-        .user-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
-            transition: width 0.3s ease;
-            opacity: 0.1;
-        }
-
-        .user-card:hover::before {
-            width: 6px;
-        }
-
-        .user-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .user-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-            margin-right: 15px;
-            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .user-avatar::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .user-avatar i {
-            position: relative;
-            z-index: 2;
-            color: var(--cyan);
-        }
-
-        .user-info h4 {
-            font-size: 1.2rem;
-            font-weight: 600;
+        .user-table th, .user-table td {
+            padding: 14px 12px;
+            text-align: left;
             color: var(--text-light);
-            margin-bottom: 5px;
+            vertical-align: middle;
         }
-
-        .user-role {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .user-table th {
+            background: rgba(49, 130, 206, 0.12);
+            font-weight: 700;
+            font-size: 1rem;
+            border-bottom: 2px solid rgba(49, 130, 206, 0.15);
         }
-
-        .user-details {
-            margin-bottom: 20px;
+        .user-table tr {
+            border-bottom: 1px solid rgba(49, 130, 206, 0.08);
         }
-
-        .user-detail-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(49, 130, 206, 0.1);
-            font-size: 0.9rem;
-        }
-
-        .user-detail-item:last-child {
+        .user-table tr:last-child {
             border-bottom: none;
         }
-
-        .user-detail-label {
-            color: var(--text-muted);
+        .user-table .user-avatar-table {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(49, 130, 206, 0.08), rgba(99, 179, 237, 0.08));
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .user-detail-label i {
+            justify-content: center;
+            border: 1px dashed rgba(49, 130, 206, 0.18);
+            font-size: 1.2rem;
             color: var(--cyan);
-            width: 16px;
+            margin-right: 8px;
         }
-
-        .user-detail-value {
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        /* Status Badges */
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-active {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .status-inactive {
-            background: rgba(156, 163, 175, 0.2);
-            color: #9ca3af;
-            border: 1px solid rgba(156, 163, 175, 0.3);
-        }
-
-        .status-pending {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        /* User Actions */
-        .user-actions {
+        .user-table .user-actions-table {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
-
-        .btn-action {
-            flex: 1;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
+        .user-table .btn-action {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.92rem;
             font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            min-width: 70px;
-            text-align: center;
+            border: 1px solid transparent;
+            background: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            transition: 
+                background 0.18s,
+                border-color 0.18s,
+                color 0.18s,
+                box-shadow 0.18s;
+            box-shadow: none;
+            min-width: 0;
+            outline: none;
         }
-
-        .btn-view {
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        .user-table .btn-view {
+            color: #2563eb;
+            border-color: #2563eb22;
+            background: rgba(37, 99, 235, 0.07);
         }
-
-        .btn-view:hover {
-            background: rgba(59, 130, 246, 0.3);
-            transform: translateY(-1px);
+        .user-table .btn-view:hover, .user-table .btn-view:focus {
+            background: #2563eb22;
+            border-color: #2563eb55;
+            color: #1d4ed8;
         }
-
-        .btn-edit {
-            background: rgba(34, 197, 94, 0.2);
+        .user-table .btn-edit {
             color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-color: #22c55e22;
+            background: rgba(34, 197, 94, 0.07);
         }
-
-        .btn-edit:hover {
-            background: rgba(34, 197, 94, 0.3);
-            transform: translateY(-1px);
+        .user-table .btn-edit:hover, .user-table .btn-edit:focus {
+            background: #22c55e22;
+            border-color: #22c55e55;
+            color: #16a34a;
         }
-
-        .btn-toggle {
-            background: rgba(251, 191, 36, 0.2);
+        .user-table .btn-toggle {
             color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-color: #fbbf2422;
+            background: rgba(251, 191, 36, 0.07);
+        }
+        .user-table .btn-toggle:hover, .user-table .btn-toggle:focus {
+            background: #fbbf2422;
+            border-color: #fbbf2455;
+            color: #b45309;
+        }
+        .user-table .btn-delete {
+            color: #dc2626;
+            border-color: #dc262622;
+            background: rgba(220, 38, 38, 0.07);
+        }
+        .user-table .btn-delete:hover, .user-table .btn-delete:focus {
+            background: #dc262622;
+            border-color: #dc262655;
+            color: #b91c1c;
+        }
+        .user-table .btn-action i {
+            margin-right: 6px;
+            font-size: 1rem;
         }
 
-        .btn-toggle:hover {
-            background: rgba(251, 191, 36, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-delete:hover {
-            background: rgba(239, 68, 68, 0.3);
-            transform: translateY(-1px);
-        }
-
-        /* Search and Filter */
-        .search-filter-section {
-            background: rgba(45, 55, 72, 0.4);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(49, 130, 206, 0.15);
-            backdrop-filter: blur(5px);
-        }
-
+        /* Custom Form Control Styles */
         .form-control-custom {
             background: rgba(15, 20, 25, 0.7);
             border: 1px solid rgba(49, 130, 206, 0.25);
             border-radius: 10px;
             color: var(--text-light);
             padding: 10px 15px;
+            box-shadow: none;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            /* Remove Bootstrap background and border */
+            background-clip: padding-box;
+            appearance: none;
         }
-
         .form-control-custom:focus {
             background: rgba(15, 20, 25, 0.9);
             border-color: var(--cyan);
-            box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.18);
             color: var(--text-light);
         }
-
         .form-control-custom::placeholder {
             color: var(--text-muted);
+            opacity: 1;
         }
-
         .form-control-custom option {
             background: var(--card-bg);
             color: var(--text-light);
+        }
+        /* Remove default arrow for select and use a custom one for dark theme */
+        .form-control-custom[type="search"],
+        .form-control-custom[type="text"],
+        .form-control-custom[type="number"],
+        .form-control-custom[type="email"],
+        .form-control-custom[type="tel"] {
+            /* Ensures all text-like inputs are themed */
+            background: rgba(15, 20, 25, 0.7);
+            color: var(--text-light);
+            border: 1px solid rgba(49, 130, 206, 0.25);
+        }
+        select.form-control-custom {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='16' height='16' fill='gray' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%2363b3ed' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+            padding-right: 2.5em;
+            color-scheme: dark;
         }
 
         /* Responsive Design */
@@ -504,6 +410,11 @@
             
             .main-content {
                 padding: 100px 0 40px;
+            }
+
+            .user-table th, .user-table td {
+                padding: 10px 6px;
+                font-size: 0.95rem;
             }
 
             .user-grid {
@@ -700,8 +611,10 @@
                         </div>
                         
                         <!-- User Grid -->
-                        <div class="user-grid" id="userGrid">
-                            <!-- User cards will be populated by JavaScript -->
+                        <div class="user-table-wrapper" id="userTableWrapper">
+                            <table class="user-table" id="userTable">
+                                <!-- User rows will be populated by JavaScript -->
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -750,81 +663,90 @@
         });
 
         function populateUserGrid(users) {
-            const grid = document.getElementById('userGrid');
-            grid.innerHTML = '';
+            // Render as table instead of grid
+            const table = document.getElementById('userTable');
+            table.innerHTML = '';
 
             if (users.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
-                        <i class="fas fa-users" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
-                        <h4>No users found</h4>
-                        <p>Try adjusting your search filters</p>
-                    </div>
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-users" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.3;"></i>
+                            <div><strong>No users found</strong></div>
+                            <div style="font-size:0.95rem;">Try adjusting your search filters</div>
+                        </td>
+                    </tr>
                 `;
                 return;
             }
 
+            // Table header
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Join Date</th>
+                        <th>Status</th>
+                        <th style="min-width:140px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+
             users.forEach(user => {
-                const userCard = document.createElement('div');
-                userCard.className = 'user-card';
-                userCard.innerHTML = `
-                    <div class="user-header">
-                        <div class="user-avatar">
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="user-avatar-table">
                             <i class="fas fa-user"></i>
                         </div>
-                        <div class="user-info">
-                            <h4>${user.firstName} ${user.lastName}</h4>
-                            <div class="user-role">${user.role}</div>
+                    </td>
+                    <td>
+                        <span class="user-name">${user.firstName} ${user.lastName}</span>
+                    </td>
+                    <td>
+                        <span class="user-email">${user.email}</span>
+                    </td>
+                    <td>
+                        <span class="user-phone">${user.phone}</span>
+                    </td>
+                    <td>
+                        <span class="user-department">${user.department}</span>
+                    </td>
+                    <td>
+                        <span class="user-role">${user.role}</span>
+                    </td>
+                    <td>
+                        <span class="user-join-date">${new Date(user.joinDate).toLocaleDateString()}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${user.status}">${user.status}</span>
+                    </td>
+                    <td>
+                        <div class="user-actions-table">
+                            <button class="btn-action btn-view" onclick="viewUser('${user.id}')">
+                                <i class="fas fa-eye"></i>View
+                            </button>
+                            <button class="btn-action btn-edit" onclick="editUser('${user.id}')">
+                                <i class="fas fa-edit"></i>Edit
+                            </button>
+                            <button class="btn-action btn-toggle" onclick="toggleUserStatus('${user.id}')">
+                                <i class="fas fa-toggle-${user.status === 'active' ? 'on' : 'off'}"></i>${user.status === 'active' ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')">
+                                <i class="fas fa-trash"></i>Delete
+                            </button>
                         </div>
-                    </div>
-                    <div class="user-details">
-                        <div class="user-detail-item">
-                            <span class="user-detail-label">
-                                <i class="fas fa-envelope"></i>Email
-                            </span>
-                            <span class="user-detail-value">${user.email}</span>
-                        </div>
-                        <div class="user-detail-item">
-                            <span class="user-detail-label">
-                                <i class="fas fa-phone"></i>Phone
-                            </span>
-                            <span class="user-detail-value">${user.phone}</span>
-                        </div>
-                        <div class="user-detail-item">
-                            <span class="user-detail-label">
-                                <i class="fas fa-building"></i>Department
-                            </span>
-                            <span class="user-detail-value">${user.department}</span>
-                        </div>
-                        <div class="user-detail-item">
-                            <span class="user-detail-label">
-                                <i class="fas fa-calendar"></i>Join Date
-                            </span>
-                            <span class="user-detail-value">${new Date(user.joinDate).toLocaleDateString()}</span>
-                        </div>
-                        <div class="user-detail-item">
-                            <span class="user-detail-label">
-                                <i class="fas fa-signal"></i>Status
-                            </span>
-                            <span class="status-badge status-${user.status}">${user.status}</span>
-                        </div>
-                    </div>
-                    <div class="user-actions">
-                        <button class="btn-action btn-view" onclick="viewUser('${user.id}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        <button class="btn-action btn-edit" onclick="editUser('${user.id}')">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn-action btn-toggle" onclick="toggleUserStatus('${user.id}')">
-                            <i class="fas fa-toggle-${user.status === 'active' ? 'on' : 'off'}"></i> ${user.status === 'active' ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
+                    </td>
                 `;
-                grid.appendChild(userCard);
+                tbody.appendChild(tr);
             });
         }
 

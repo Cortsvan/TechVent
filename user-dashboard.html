@@ -299,177 +299,95 @@
             color: white;
         }
 
-        /* Product Grid */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 25px;
+        /* Product Table Styles */
+        .product-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
         }
-
-        .product-card {
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
             background: var(--card-bg);
             border-radius: 15px;
-            padding: 20px;
+            overflow: hidden;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(49, 130, 206, 0.1);
-            position: relative;
-            overflow: hidden;
         }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(49, 130, 206, 0.2);
-            border-color: var(--cyan);
+        .product-table th, .product-table td {
+            padding: 14px 12px;
+            text-align: left;
+            color: var(--text-light);
+            vertical-align: middle;
         }
-
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(45deg, var(--cyan), var(--light-cyan));
-            transition: width 0.3s ease;
-            opacity: 0.1;
+        .product-table th {
+            background: rgba(49, 130, 206, 0.12);
+            font-weight: 700;
+            font-size: 1rem;
+            border-bottom: 2px solid rgba(49, 130, 206, 0.15);
         }
-
-        .product-card:hover::before {
-            width: 6px;
+        .product-table tr {
+            border-bottom: 1px solid rgba(49, 130, 206, 0.08);
         }
-
-        .product-image {
-            width: 100%;
-            height: 150px;
-            background: linear-gradient(135deg, rgba(49, 130, 206, 0.1), rgba(99, 179, 237, 0.1));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            border: 2px dashed rgba(49, 130, 206, 0.3);
-            position: relative;
-            overflow: hidden;
+        .product-table tr:last-child {
+            border-bottom: none;
         }
-
-        .product-image i {
-            font-size: 3rem;
-            color: var(--cyan);
-            opacity: 0.6;
-        }
-
-        .product-title {
-            font-size: 1.2rem;
+        .product-table .product-title {
+            font-size: 1rem;
             font-weight: 600;
             color: var(--text-light);
-            margin-bottom: 8px;
+            margin-bottom: 0;
         }
-
-        .product-category {
+        .product-table .product-category {
             font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        .product-details {
-            margin-bottom: 15px;
-        }
-
-        .product-detail-item {
+        .product-table .product-actions {
             display: flex;
-            justify-content: space-between;
+            gap: 8px;
+        }
+        .product-table .btn-action {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            background: none;
+            color: inherit;
+            display: flex;
             align-items: center;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+            transition: 
+                background 0.18s,
+                border-color 0.18s,
+                color 0.18s,
+                box-shadow 0.18s;
+            box-shadow: none;
+            min-width: 0;
+            outline: none;
         }
-
-        .product-detail-label {
-            color: var(--text-muted);
+        .product-table .btn-edit {
+            color: #2563eb;
+            border-color: #2563eb22;
+            background: rgba(37, 99, 235, 0.07);
         }
-
-        .product-detail-value {
-            color: var(--text-light);
-            font-weight: 600;
+        .product-table .btn-edit:hover, .product-table .btn-edit:focus {
+            background: #2563eb22;
+            border-color: #2563eb55;
+            color: #1d4ed8;
         }
-
-        .product-stock {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .product-table .btn-delete {
+            color: #dc2626;
+            border-color: #dc262622;
+            background: rgba(220, 38, 38, 0.07);
         }
-
-        .stock-high {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+        .product-table .btn-delete:hover, .product-table .btn-delete:focus {
+            background: #dc262622;
+            border-color: #dc262655;
+            color: #b91c1c;
         }
-
-        .stock-medium {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        .stock-low {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .product-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-action {
-            flex: 1;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-edit {
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-edit:hover {
-            background: rgba(59, 130, 246, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-delete:hover {
-            background: rgba(239, 68, 68, 0.3);
-            transform: translateY(-1px);
-        }
-
-        /* Search and Filter */
-        .search-filter-section {
-            background: rgba(45, 55, 72, 0.4);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(49, 130, 206, 0.15);
-            backdrop-filter: blur(5px);
+        .product-table .btn-action i {
+            margin-right: 6px;
+            font-size: 1rem;
         }
 
         /* Responsive Design */
@@ -492,13 +410,9 @@
                 padding: 100px 0 40px;
             }
 
-            .product-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .add-product-section {
-                padding: 20px;
+            .product-table th, .product-table td {
+                padding: 10px 6px;
+                font-size: 0.95rem;
             }
         }
 
@@ -726,8 +640,10 @@
                         </div>
                         
                         <!-- Product Grid -->
-                        <div class="product-grid" id="productGrid">
-                            <!-- Products will be populated by JavaScript -->
+                        <div class="product-table-wrapper" id="productTableWrapper">
+                            <table class="product-table" id="productTable">
+                                <!-- Products will be populated by JavaScript -->
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -776,55 +692,81 @@
         });
 
         function populateProductGrid(products) {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
+            // Instead of grid, render as table
+            const table = document.getElementById('productTable');
+            table.innerHTML = '';
 
             if (products.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
-                        <i class="fas fa-boxes" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
-                        <h4>No products found</h4>
-                        <p>Add your first product to get started!</p>
-                    </div>
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-boxes" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.3;"></i>
+                            <div><strong>No products found</strong></div>
+                            <div style="font-size:0.95rem;">Add your first product to get started!</div>
+                        </td>
+                    </tr>
                 `;
                 return;
             }
 
+            // Table header
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price ($)</th>
+                        <th>Stock</th>
+                        <th>SKU</th>
+                        <th>Description</th>
+                        <th style="min-width:120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+
             products.forEach(product => {
                 const stockStatus = getStockStatus(product.stock);
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
-                productCard.innerHTML = `
-                    <div class="product-image">
-                        <i class="fas fa-${getCategoryIcon(product.category)}"></i>
-                    </div>
-                    <h4 class="product-title">${product.name}</h4>
-                    <div class="product-category">${product.category}</div>
-                    <div class="product-details">
-                        <div class="product-detail-item">
-                            <span class="product-detail-label">Price:</span>
-                            <span class="product-detail-value">$${product.price.toFixed(2)}</span>
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="product-image-table">
+                            <i class="fas fa-${getCategoryIcon(product.category)}"></i>
                         </div>
-                        <div class="product-detail-item">
-                            <span class="product-detail-label">Stock:</span>
-                            <span class="product-stock ${stockStatus.class}">${product.stock} units</span>
+                    </td>
+                    <td>
+                        <span class="product-title">${product.name}</span>
+                    </td>
+                    <td>
+                        <span class="product-category">${product.category}</span>
+                    </td>
+                    <td>
+                        <span class="product-detail-value">$${product.price.toFixed(2)}</span>
+                    </td>
+                    <td>
+                        <span class="product-stock ${stockStatus.class}">${product.stock} units</span>
+                    </td>
+                    <td>
+                        <span class="product-detail-value">${product.sku}</span>
+                    </td>
+                    <td>
+                        <span class="product-detail-label">${product.description}</span>
+                    </td>
+                    <td>
+                        <div class="product-actions">
+                            <button class="btn-action btn-edit" onclick="editProduct('${product.id}')">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">
+                                <i class="fas fa-trash me-1"></i>Remove
+                            </button>
                         </div>
-                        <div class="product-detail-item">
-                            <span class="product-detail-label">SKU:</span>
-                            <span class="product-detail-value">${product.sku}</span>
-                        </div>
-                    </div>
-                    <p class="product-detail-label" style="margin-bottom: 15px;">${product.description}</p>
-                    <div class="product-actions">
-                        <button class="btn-action btn-edit" onclick="editProduct('${product.id}')">
-                            <i class="fas fa-edit me-1"></i>Edit
-                        </button>
-                        <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">
-                            <i class="fas fa-trash me-1"></i>Remove
-                        </button>
-                    </div>
+                    </td>
                 `;
-                grid.appendChild(productCard);
+                tbody.appendChild(tr);
             });
         }
 
