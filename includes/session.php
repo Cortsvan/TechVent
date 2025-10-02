@@ -68,7 +68,7 @@ function requireAdmin() {
         if (!isLoggedIn()) {
             header('Location: login.php?message=admin_required');
         } else {
-            header('Location: user-dashboard.html?message=access_denied');
+            header('Location: user-dashboard.php?message=access_denied');
         }
         exit();
     }
@@ -84,9 +84,9 @@ function redirectToDashboard() {
     }
     
     if (isAdmin()) {
-        header('Location: admin-dashboard.html');
+        header('Location: admin-dashboard.php');
     } else {
-        header('Location: user-dashboard.html');
+        header('Location: user-dashboard.php');
     }
     exit();
 }
@@ -127,5 +127,81 @@ function getSessionMessage($messageType = 'message') {
  */
 function setSessionMessage($message, $messageType = 'message') {
     $_SESSION[$messageType] = $message;
+}
+
+/**
+ * Generate navigation menu items based on user role and current page
+ * @param string $currentPage - The current page filename (e.g., 'admin-products.php')
+ * @return string HTML for navigation menu items
+ */
+function generateNavigation($currentPage = '') {
+    if (!isLoggedIn()) {
+        return '';
+    }
+    
+    $isAdminUser = isAdmin();
+    $nav = '';
+    
+    // Dashboard link
+    $dashboardUrl = $isAdminUser ? 'admin-dashboard.php' : 'user-dashboard.php';
+    $dashboardActive = ($currentPage === $dashboardUrl) ? 'active' : '';
+    $nav .= '<li class="nav-item">
+                <a class="nav-link ' . $dashboardActive . '" href="' . $dashboardUrl . '">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </li>';
+    
+    // Suppliers link (admin only)
+    if ($isAdminUser) {
+        $suppliersActive = ($currentPage === 'admin-suppliers.php') ? 'active' : '';
+        $nav .= '<li class="nav-item">
+                    <a class="nav-link ' . $suppliersActive . '" href="admin-suppliers.php">
+                        <i class="fas fa-truck me-1"></i>Suppliers
+                    </a>
+                </li>';
+    }
+    
+    // Products link (both admin and user)
+    $productsActive = ($currentPage === 'admin-products.php') ? 'active' : '';
+    $nav .= '<li class="nav-item">
+                <a class="nav-link ' . $productsActive . '" href="admin-products.php">
+                    <i class="fas fa-box-open me-1"></i>Products
+                </a>
+            </li>';
+    
+    // Inventory link (both admin and user)
+    $inventoryActive = ($currentPage === 'admin-inventory.php') ? 'active' : '';
+    $nav .= '<li class="nav-item">
+                <a class="nav-link ' . $inventoryActive . '" href="admin-inventory.php">
+                    <i class="fas fa-boxes me-1"></i>Inventory
+                </a>
+            </li>';
+    
+    // User Management link (admin only)
+    if ($isAdminUser) {
+        $userMgmtActive = ($currentPage === 'admin-user-management.php') ? 'active' : '';
+        $nav .= '<li class="nav-item">
+                    <a class="nav-link ' . $userMgmtActive . '" href="admin-user-management.php">
+                        <i class="fas fa-users me-1"></i>User Management
+                    </a>
+                </li>';
+    }
+    
+    // Profile link
+    $profileActive = ($currentPage === 'user-profile.php') ? 'active' : '';
+    $nav .= '<li class="nav-item">
+                <a class="nav-link ' . $profileActive . '" href="user-profile.php">
+                    <i class="fas fa-user me-1"></i>Profile
+                </a>
+            </li>';
+    
+    // Logout link
+    $nav .= '<li class="nav-item">
+                <a class="nav-link" href="logout.php">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </li>';
+    
+    return $nav;
 }
 ?>

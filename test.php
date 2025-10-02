@@ -148,8 +148,8 @@ require_once 'includes/session.php';
                     'login.php',
                     'register.php',
                     'logout.php',
-                    'admin-dashboard.html',
-                    'user-dashboard.html'
+                    'admin-dashboard.php',
+                    'user-dashboard.php'
                 ];
 
                 $allFilesExist = true;
@@ -179,8 +179,8 @@ require_once 'includes/session.php';
             <div class="card-body">
                 <a href="login.php" class="btn btn-primary me-2">Login Page</a>
                 <a href="register.php" class="btn btn-success me-2">Register Page</a>
-                <a href="admin-dashboard.html" class="btn btn-warning me-2">Admin Dashboard</a>
-                <a href="user-dashboard.html" class="btn btn-info me-2">User Dashboard</a>
+                <a href="admin-dashboard.php" class="btn btn-warning me-2">Admin Dashboard</a>
+                <a href="user-dashboard.php" class="btn btn-info me-2">User Dashboard</a>
                 <a href="index.html" class="btn btn-secondary">Home Page</a>
             </div>
         </div>
