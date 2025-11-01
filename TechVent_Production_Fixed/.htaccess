@@ -1,0 +1,32 @@
+# Security Headers for InfinityFree
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+
+# Prevent access to sensitive files
+<Files "*.sql">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "*.md">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Hide PHP version
+Header unset X-Powered-By
+
+# Prevent directory browsing
+Options -Indexes
+
+# Security for config files
+<Files "db.php">
+    Order Allow,Deny
+    Deny from all
+</Files>

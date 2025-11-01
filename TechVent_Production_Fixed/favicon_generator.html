@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TechVent Favicon Generator</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a202c; color: white; }
+        canvas { border: 2px solid #3182ce; margin: 20px; }
+        .download-link { background: #3182ce; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h2>🎯 TechVent Favicon Generator</h2>
+    <p>This will create a simple "TV" favicon for your site.</p>
+    
+    <canvas id="faviconCanvas" width="32" height="32"></canvas>
+    <canvas id="faviconCanvas64" width="64" height="64"></canvas>
+    
+    <br><br>
+    <a href="#" id="download32" class="download-link">Download 32x32 Favicon</a>
+    <a href="#" id="download64" class="download-link">Download 64x64 Favicon</a>
+    
+    <h3>Instructions:</h3>
+    <ol>
+        <li>Click download links above to save favicon files</li>
+        <li>Rename downloaded files to <code>favicon.png</code></li>
+        <li>Upload to your InfinityFree root directory (htdocs)</li>
+        <li>Add favicon links to your HTML files</li>
+    </ol>
+
+    <script>
+        function createFavicon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#1a202c';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Border
+            ctx.strokeStyle = '#3182ce';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, size-2, size-2);
+            
+            // Text "TV"
+            ctx.fillStyle = '#3182ce';
+            ctx.font = `bold ${size/2.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('TV', size/2, size/2);
+        }
+
+        // Create favicons
+        createFavicon(document.getElementById('faviconCanvas'), 32);
+        createFavicon(document.getElementById('faviconCanvas64'), 64);
+
+        // Download functionality
+        document.getElementById('download32').addEventListener('click', function(e) {
+            e.preventDefault();
+            const canvas = document.getElementById('faviconCanvas');
+            const link = document.createElement('a');
+            link.download = 'favicon-32x32.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        document.getElementById('download64').addEventListener('click', function(e) {
+            e.preventDefault();
+            const canvas = document.getElementById('faviconCanvas64');
+            const link = document.createElement('a');
+            link.download = 'favicon-64x64.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    </script>
+</body>
+</html>
